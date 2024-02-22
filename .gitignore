@@ -1,0 +1,9 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.idea
+Gultan.API/appsettings.json
+Gultan.API/appsettings.Development.json
+Gultan.API/Properties/launchSettings.json
