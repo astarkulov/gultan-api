@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gultan.API", "Gultan.API\Gultan.API.csproj", "{90D85C26-7FC6-446C-93CA-3A41C287EC66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gultan.Application", "Gultan.Application\Gultan.Application.csproj", "{A20983A7-AF19-4A67-B877-2115C1614C05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gultan.Infrastructure", "Gultan.Infrastructure\Gultan.Infrastructure.csproj", "{6E0BA820-224E-48BE-9444-B8364674F8FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gultan.Domain", "Gultan.Domain\Gultan.Domain.csproj", "{5BE0B36B-E14C-4FF5-946C-7A6C8E854AF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +18,17 @@ Global
 		{90D85C26-7FC6-446C-93CA-3A41C287EC66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90D85C26-7FC6-446C-93CA-3A41C287EC66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90D85C26-7FC6-446C-93CA-3A41C287EC66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A20983A7-AF19-4A67-B877-2115C1614C05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20983A7-AF19-4A67-B877-2115C1614C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20983A7-AF19-4A67-B877-2115C1614C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20983A7-AF19-4A67-B877-2115C1614C05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E0BA820-224E-48BE-9444-B8364674F8FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E0BA820-224E-48BE-9444-B8364674F8FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E0BA820-224E-48BE-9444-B8364674F8FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E0BA820-224E-48BE-9444-B8364674F8FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BE0B36B-E14C-4FF5-946C-7A6C8E854AF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BE0B36B-E14C-4FF5-946C-7A6C8E854AF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BE0B36B-E14C-4FF5-946C-7A6C8E854AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BE0B36B-E14C-4FF5-946C-7A6C8E854AF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

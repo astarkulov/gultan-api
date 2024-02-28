@@ -1,0 +1,9 @@
+﻿global using Gultan.Application.Common.Interfaces.Data;
+global using Gultan.Application.Common.Interfaces.Security;
+global using Gultan.Application.Common.Dto;
+global using MediatR;
+global using Microsoft.EntityFrameworkCore;
+global using AutoMapper;
+global using Gultan.Domain.Models;
+global using Gultan.Application.Common.Extensions;
+global using FluentValidation;
