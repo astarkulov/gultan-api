@@ -3,7 +3,7 @@ using Gultan.Application.Common.Contracts.Auth;
 using Gultan.Application.Common.Exceptions.Auth;
 using Gultan.Application.Common.Interfaces.Services;
 
-namespace Gultan.Application.Auth.Commands;
+namespace Gultan.Application.Auth.Commands.Refresh;
 
 public record RefreshCommand(string RefreshToken) : IRequest<AuthResponse>;
 
@@ -19,7 +19,7 @@ public class RefreshCommandHandler(
         var userData = jwtProvider.ValidateRefreshToken(request.RefreshToken);
         await tokenService.FindToken(request.RefreshToken, cancellationToken);
 
-        var userIdClaim = userData.Claims.First(x => x.Type == JwtClaims.UserId).Value;
+        var userIdClaim = userData.GetValueOrDefault("userId");
         var user = await context.Users.FirstAsync(x => x.Id == int.Parse(userIdClaim), cancellationToken);
         var userDto = mapper.Map<User, UserDto>(user);
         var tokens = jwtProvider.GenerateTokens(userDto);

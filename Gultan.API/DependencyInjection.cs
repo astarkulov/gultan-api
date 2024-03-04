@@ -15,16 +15,17 @@ public static class DependencyInjection
         services
             .AddApiSwaggerGen()
             .AddAutoMapper()
+            .AddCorsPolicy()
             .AddControllers();
-        
+            
         services.Configure<ApiBehaviorOptions>(options =>
         {
             options.SuppressModelStateInvalidFilter = true;
         });
 
         services
-            .AddApiAuthentication(configuration)
-            .AddCorsPolicy();
+            .AddApiAuthentication(configuration);
+            
         
         return services;
     }
@@ -35,8 +36,9 @@ public static class DependencyInjection
             builder => builder.SetIsOriginAllowed(_ => true)
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithExposedHeaders()
-                .AllowCredentials()));
+                .AllowCredentials()
+            )
+        );
 
         return services;
     }
@@ -90,7 +92,12 @@ public static class DependencyInjection
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.JwtAccessSecretKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.JwtAccessSecretKey)),
+                    LifetimeValidator = (before, expires, token, parameters) =>
+                    {
+                        if (expires == null) return false; // Expired
+                        return DateTime.UtcNow < expires.Value.ToUniversalTime();
+                    },
                 };
 
                 options.Events = new JwtBearerEvents

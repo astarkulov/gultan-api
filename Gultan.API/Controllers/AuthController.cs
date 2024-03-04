@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
-using Gultan.Application.Auth.Commands;
-using Gultan.Application.Common.Constants;
+using Gultan.Application.Auth.Commands.Login;
+using Gultan.Application.Auth.Commands.Logout;
+using Gultan.Application.Auth.Commands.Refresh;
+using Gultan.Application.Auth.Commands.Register;
 using Gultan.Application.Common.Contracts.Auth;
 using Gultan.Application.Common.Dto;
 using Gultan.Application.Common.Interfaces.Data;
@@ -39,16 +41,16 @@ public class AuthController(ISender sender, IApplicationDbContext context, IJwtP
     [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
-        await sender.Send(new LogoutCommand(HttpContext.Request.Cookies["token"]));
-        HttpContext.Response.Cookies.Delete("token");
+        await sender.Send(new LogoutCommand(HttpContext.Request.Cookies["refreshToken"]));
+        HttpContext.Response.Cookies.Delete("refreshToken");
         
         return Ok();
     }
 
-    [HttpPost("refresh")]
+    [HttpGet("refresh")]
     public async Task<IActionResult> Refresh()
     {
-        var response = await sender.Send(new RefreshCommand(HttpContext.Request.Cookies["token"]));
+        var response = await sender.Send(new RefreshCommand(HttpContext.Request.Cookies["refreshToken"]));
         SetRefreshTokenInCookie(response.RefreshToken);
 
         return Ok(response);
@@ -67,8 +69,8 @@ public class AuthController(ISender sender, IApplicationDbContext context, IJwtP
     [HttpGet("user")]
     public async Task<IActionResult> GetUser()
     {
-        var claims = jwtProvider.ValidateRefreshToken(HttpContext.Request.Cookies["token"]);
-        var userId = int.Parse(claims.Claims.First(x => x.Type == JwtClaims.UserId).Value.ToString());
+        var payload = jwtProvider.ValidateRefreshToken(HttpContext.Request.Cookies["refreshToken"]);
+        var userId = int.Parse(payload.GetValueOrDefault("userId"));
 
         var response = await context.Users.FirstOrDefaultAsync(x =>x.Id == userId);
 
@@ -80,11 +82,10 @@ public class AuthController(ISender sender, IApplicationDbContext context, IJwtP
     {
         var cookieOptions = new CookieOptions
         {
-            MaxAge = DateTime.UtcNow.AddDays(30).TimeOfDay,
-            HttpOnly = true,
-            Secure = true
+            SameSite = SameSiteMode.None,
+            Expires = DateTimeOffset.Now.AddDays(30)
         };
-        HttpContext.Response.Cookies.Append("token", refreshToken, cookieOptions);
+        HttpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
     }
     //
     // [HttpPost("activate")]

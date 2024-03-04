@@ -1,4 +1,4 @@
-﻿namespace Gultan.Application.Auth.Commands;
+﻿namespace Gultan.Application.Auth.Commands.Login;
 
 public class LoginDto
 {

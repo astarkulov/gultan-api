@@ -1,4 +1,4 @@
-﻿namespace Gultan.Application.Auth.Commands;
+﻿namespace Gultan.Application.Auth.Commands.Register;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {

@@ -3,7 +3,7 @@ using Gultan.Application.Common.Exceptions.Auth;
 using Gultan.Application.Common.Interfaces.Email;
 using Gultan.Application.Common.Interfaces.Services;
 
-namespace Gultan.Application.Auth.Commands;
+namespace Gultan.Application.Auth.Commands.Register;
 
 public record RegisterCommand(string UserName, string Email, string Password) : IRequest<AuthResponse>;
 
@@ -24,18 +24,18 @@ public class RegisterCommandHandler(
             throw new UserAlreadyExistsException(request.Email);
 
         var hashedPassword = passwordHasher.Generate(request.Password);
-        //var activationLink = Guid.NewGuid().ToString();
+        // var activationLink = Guid.NewGuid().ToString();
 
         var user = new User()
         {
             UserName = request.UserName,
             Email = request.Email,
             PasswordHash = hashedPassword,
-            //ActivationLink = activationLink
+            // ActivationLink = activationLink
         };
         await context.Users.AddAsync(user, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
-        //emailService.SendActivationMail(request.Email, activationLink);
+        // emailService.SendActivationMail(request.Email, activationLink);
         
         var tokens = jwtProvider.GenerateTokens(mapper.Map<User, UserDto>(user));
         await tokenService.SaveToken(user, tokens.RefreshToken, cancellationToken);

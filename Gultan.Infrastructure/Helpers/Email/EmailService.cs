@@ -8,7 +8,7 @@ namespace Gultan.Infrastructure.Helpers.Email;
 
 public class EmailService(IOptions<SmtpOptions> smtpOptions, IConfiguration configuration) : IEmailService
 {
-    public void SendActivationMail(string email, string activationLink)
+    public async void SendActivationMail(string email, string activationLink)
     {
         var link = configuration.GetValue<string>("ApiUrl") + $"/Auth/activate?link={activationLink}";
         var message = new MimeMessage();
@@ -18,17 +18,17 @@ public class EmailService(IOptions<SmtpOptions> smtpOptions, IConfiguration conf
 
         message.Body = new TextPart("html")
         {
-            Text = $@"<p>Для активации перейдите по <a href='{link}'>ссылке</a>.</p>"
+            Text = $"<p>Для активации перейдите по <a href='{link}'>ссылке</a>.</p>"
         };
 
         using (var client = new SmtpClient())
         {
-            client.Connect(smtpOptions.Value.Host, smtpOptions.Value.Port, true); // Обновляем для поддержки STARTTLS
+            await client.ConnectAsync(smtpOptions.Value.Host, smtpOptions.Value.Port, true); // Обновляем для поддержки STARTTLS
 
-            client.Authenticate(smtpOptions.Value.User, smtpOptions.Value.Password);
+            await client.AuthenticateAsync(smtpOptions.Value.User, smtpOptions.Value.Password);
 
-            client.Send(message);
-            client.Disconnect(true);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
     }
 }

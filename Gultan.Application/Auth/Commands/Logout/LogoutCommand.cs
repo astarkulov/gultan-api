@@ -1,6 +1,6 @@
 ﻿using Gultan.Application.Common.Exceptions.Auth;
 
-namespace Gultan.Application.Auth.Commands;
+namespace Gultan.Application.Auth.Commands.Logout;
 
 public record LogoutCommand(string RefreshToken) : IRequest;
 

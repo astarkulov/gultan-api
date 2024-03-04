@@ -1,7 +1,7 @@
 ﻿using Gultan.Application.Common.Contracts.Auth;
 using Gultan.Application.Common.Interfaces.Services;
 
-namespace Gultan.Application.Auth.Commands;
+namespace Gultan.Application.Auth.Commands.Login;
 
 public record LoginCommand(string UserName, string Password) : IRequest<AuthResponse>;
 

@@ -1,4 +1,4 @@
-﻿namespace Gultan.Application.Auth.Commands;
+﻿namespace Gultan.Application.Auth.Commands.Activate;
 
 public record ActivateCommand(string ActivationLink) : IRequest;
 

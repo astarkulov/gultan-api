@@ -43,13 +43,13 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         return new TokenDto(accessTokenValue, refreshTokenValue);
     }
 
-    public ClaimsPrincipal ValidateRefreshToken(string refreshToken) =>
+    public Dictionary<string,string> ValidateRefreshToken(string refreshToken) =>
         ValidateToken(refreshToken, jwtOptions.Value.JwtRefreshSecretKey);
 
-    public ClaimsPrincipal ValidateAccessToken(string accessToken) =>
+    public Dictionary<string,string> ValidateAccessToken(string accessToken) =>
         ValidateToken(accessToken, jwtOptions.Value.JwtAccessSecretKey);
 
-    private ClaimsPrincipal ValidateToken(string token, string secretKey)
+    private Dictionary<string,string> ValidateToken(string token, string secretKey)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
@@ -63,8 +63,15 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         };
 
         try
+        { 
+            tokenHandler.ValidateToken(token, validationParameters, out _);
+
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(token);
+            return jwtSecurityToken.Claims.ToDictionary(claim => claim.Type, claim => claim.Value);
+        }
+        catch (SecurityTokenExpiredException)
         {
-            return tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+            throw;
         }
         catch (SecurityTokenException)
         {
