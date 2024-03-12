@@ -1,22 +1,15 @@
-﻿using AutoMapper;
-using Gultan.Application.Auth.Commands.Login;
+﻿using Gultan.Application.Auth.Commands.Login;
 using Gultan.Application.Auth.Commands.Logout;
 using Gultan.Application.Auth.Commands.Refresh;
 using Gultan.Application.Auth.Commands.Register;
 using Gultan.Application.Common.Contracts.Auth;
-using Gultan.Application.Common.Dto;
-using Gultan.Application.Common.Interfaces.Data;
-using Gultan.Application.Common.Interfaces.Security;
-using Gultan.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gultan.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
 [EnableCors("CorsPolicy")]
-public class AuthController(ISender sender, IApplicationDbContext context, IJwtProvider jwtProvider, IMapper mapper) : ControllerBase
+public class AuthController(ISender sender) : ControllerBase
 {
     [HttpPost("register")]
     [ProducesResponseType<AuthResponse>(200)]
@@ -55,28 +48,6 @@ public class AuthController(ISender sender, IApplicationDbContext context, IJwtP
 
         return Ok(response);
     }
-    
-    [Authorize]
-    [HttpGet("users")]
-    public async Task<IActionResult> GetUsers()
-    {
-        var response = await context.Users.AsQueryable().ToListAsync();
-
-        return Ok(response);
-    }
-
-    [Authorize]
-    [HttpGet("user")]
-    public async Task<IActionResult> GetUser()
-    {
-        var payload = jwtProvider.ValidateRefreshToken(HttpContext.Request.Cookies["refreshToken"]);
-        var userId = int.Parse(payload.GetValueOrDefault("userId"));
-
-        var response = await context.Users.FirstOrDefaultAsync(x =>x.Id == userId);
-
-        return Ok(mapper.Map<User, UserDto>(response));
-    }
-    
 
     private void SetRefreshTokenInCookie(string refreshToken)
     {

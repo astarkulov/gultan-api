@@ -114,7 +114,13 @@ public static class DependencyInjection
                     }
                 };
             });
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminPolicy", policy =>
+            {
+                policy.RequireClaim("Admin", "true");
+            });
+        });
 
         return services;
     }

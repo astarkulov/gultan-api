@@ -1,4 +1,5 @@
 ﻿using Gultan.Application.Common.Contracts.Auth;
+using Gultan.Application.Common.Exceptions.Auth;
 using Gultan.Application.Common.Interfaces.Services;
 
 namespace Gultan.Application.Auth.Commands.Login;
@@ -21,9 +22,7 @@ public class LoginCommandHandler(
         var result = passwordHasher.Verify(request.Password, user.PasswordHash);
 
         if (!result)
-        {
-            throw new Exception("Пароль не совпадает");
-        }
+            throw new InvalidPasswordException();
 
         var tokens = jwtProvider.GenerateTokens(mapper.Map<User, UserDto>(user));
         await tokenService.SaveToken(user, tokens.RefreshToken, cancellationToken);
