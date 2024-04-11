@@ -3,6 +3,7 @@ using System;
 using Gultan.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gultan.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240609054951_AddEntities")]
+    partial class AddEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +35,9 @@ namespace Gultan.Infrastructure.Data.Migrations
 
                     b.Property<int>("AdminId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ForecastDate")
                         .HasColumnType("timestamp with time zone");
@@ -60,9 +66,11 @@ namespace Gultan.Infrastructure.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Exchange")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Industry")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<decimal>("LastPrice")
@@ -72,12 +80,15 @@ namespace Gultan.Infrastructure.Data.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Sector")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Symbol")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -192,6 +203,7 @@ namespace Gultan.Infrastructure.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("UserId")

@@ -6,6 +6,7 @@ using Gultan.Application.Common.Contracts.Auth;
 
 namespace Gultan.API.Controllers;
 
+
 [ApiController]
 [Route("[controller]")]
 [EnableCors("CorsPolicy")]

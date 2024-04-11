@@ -31,4 +31,8 @@
       <ProjectReference Include="..\Gultan.Infrastructure\Gultan.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\assets\" />
+    </ItemGroup>
+
 </Project>
