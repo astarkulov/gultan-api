@@ -1,7 +1,10 @@
 using Gultan.Application.Common.Dto;
 using Gultan.Application.WalletData.Commands.AddWallet;
 using Gultan.Application.WalletData.Commands.AddWalletStocks;
+using Gultan.Application.WalletData.Commands.UpdateSettings;
 using Gultan.Application.WalletData.Commands.UpdateWalletStocks;
+using Gultan.Application.WalletData.Queries.GetWalletById;
+using Gultan.Application.WalletData.Queries.GetWalletGoals;
 using Gultan.Application.WalletData.Queries.GetWallets;
 using Gultan.Application.WalletData.Queries.GetWalletStocks;
 using Microsoft.AspNetCore.Authorization;
@@ -48,5 +51,29 @@ public class WalletController(ISender sender) : BaseController
         await sender.Send(request);
 
         return NoContent();
+    }
+
+    [HttpPut("wallet-settings")]
+    public async Task<IActionResult> UpdateWalletSettings([FromBody] UpdateWalletSettingsCommand request)
+    {
+        await sender.Send(request);
+
+        return NoContent();
+    }
+
+    [HttpGet("wallet-goals")]
+    public async Task<IActionResult> GetWalletGoals()
+    {
+        var result = await sender.Send(new GetWalletGoalsQuery());
+
+        return Ok(result);
+    }
+
+    [HttpGet("wallet-by-id")]
+    public async Task<IActionResult> GetWalletById([FromQuery] GetWalletByIdQuery request)
+    {
+        var wallet = await sender.Send(request);
+
+        return Ok(wallet);
     }
 }

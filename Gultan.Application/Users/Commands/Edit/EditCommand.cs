@@ -15,5 +15,7 @@ public class EditCommandHandler(
         user.Name = request.UserDto.Name;
         user.Surname = request.UserDto.Surname;
         user.PhoneNumber = request.UserDto.PhoneNumber;
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

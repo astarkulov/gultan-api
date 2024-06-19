@@ -1,5 +1,6 @@
 ﻿using Gultan.Application.Common.Interfaces.Email;
 using Gultan.Application.Common.Interfaces.Services;
+using Gultan.Application.Common.Services;
 using Gultan.Infrastructure.Helpers.Email;
 using Gultan.Infrastructure.Services;
 using Gultan.Infrastructure.Services.StockDataService;
@@ -46,6 +47,8 @@ public static class DependencyInjection
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IStockDataService, StockDataService>();
+        services.AddScoped<ICapitalOrganizeService, CapitalOrganizeService>();
+        services.AddHostedService<StockDataBackgroundService>();
         services.Configure<StockDataOptions>(configuration.GetSection(nameof(StockDataOptions)));
 
         return services;

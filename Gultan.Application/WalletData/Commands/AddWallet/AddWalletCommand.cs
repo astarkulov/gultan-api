@@ -9,7 +9,8 @@ public class AddWalletCommandHandler(IApplicationDbContext context, IMapper mapp
         var wallet = new Wallet()
         {
             Name = request.Name,
-            UserId = request.UserId
+            UserId = request.UserId,
+            CreatedAt = DateTime.UtcNow
         };
         context.Wallets.Add(wallet);
         await context.SaveChangesAsync(cancellationToken);

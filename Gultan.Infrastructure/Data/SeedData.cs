@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Gultan.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gultan.Infrastructure.Data;
@@ -32,28 +33,31 @@ public static class SeedData
         var forecasts = new Dictionary<string, List<(DateTime Date, decimal PredictedPrice)>>();
 
         using (var reader = new StreamReader(filePath))
-        using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)))
         {
-            var records = csv.GetRecords<dynamic>().ToList();
-
-            foreach (var record in records)
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)))
             {
-                var recordDict = (IDictionary<string, object>)record;
+                var records = csv.GetRecords<dynamic>().ToList();
 
-                var date = DateTime.Parse(recordDict["date"].ToString()).ToUniversalTime();
-
-                foreach (var kvp in recordDict)
+                foreach (var record in records)
                 {
-                    if (kvp.Key == "date") continue;
+                    var recordDict = (IDictionary<string, object>)record;
 
-                    if (!forecasts.TryGetValue(kvp.Key, out var value))
+                    var date = DateTime.Parse(recordDict["date"].ToString()).ToUniversalTime();
+
+                    foreach (var kvp in recordDict)
                     {
-                        value = new List<(DateTime Date, decimal PredictedPrice)>();
-                        forecasts[kvp.Key] = value;
-                    }
+                        if (kvp.Key == "date") continue;
 
-                    var predictedPrice = decimal.Parse(kvp.Value.ToString() ?? string.Empty, CultureInfo.InvariantCulture);
-                    value.Add((date, predictedPrice));
+                        if (!forecasts.TryGetValue(kvp.Key, out var value))
+                        {
+                            value = new List<(DateTime Date, decimal PredictedPrice)>();
+                            forecasts[kvp.Key] = value;
+                        }
+
+                        var predictedPrice =
+                            decimal.Parse(kvp.Value.ToString() ?? string.Empty, CultureInfo.InvariantCulture);
+                        value.Add((date, predictedPrice));
+                    }
                 }
             }
         }
@@ -62,7 +66,8 @@ public static class SeedData
     }
 
     private static async Task UpdateForecastsInDatabase(
-        Dictionary<string, List<(DateTime Date, decimal PredictedPrice)>> forecasts, IApplicationDbContext dbContext, CancellationToken cancellationToken)
+        Dictionary<string, List<(DateTime Date, decimal PredictedPrice)>> forecasts, IApplicationDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         var stocks = await dbContext.Stocks.ToListAsync(cancellationToken: cancellationToken);
 
@@ -76,18 +81,47 @@ public static class SeedData
                 continue;
             }
 
-            foreach (var forecastEntity in from forecast in value
-                     let predictedValue = (forecast.PredictedPrice / 1000m) * stock.LastPrice
-                     select new Forecast
-                     {
-                         AdminId = 4,
-                         StockId = stock.Id,
-                         ForecastDate = DateTime.SpecifyKind(forecast.Date, DateTimeKind.Utc),
-                         PredictedPrice = predictedValue
-                     })
+            var calculatedForecasts = (from forecast in value
+                let predictedValue = forecast.PredictedPrice
+                select new Forecast
+                {
+                    AdminId = 4, StockId = stock.Id,
+                    ForecastDate = DateTime.SpecifyKind(forecast.Date, DateTimeKind.Utc),
+                    PredictedPrice = predictedValue
+                }).ToList();
+
+            var shortt = calculatedForecasts
+                .Where(x => x.ForecastDate >= DateTime.Now && x.ForecastDate <= DateTime.Now.AddDays(30))
+                .Max(x => x.PredictedPrice);
+            var middle = calculatedForecasts
+                .Where(x => x.ForecastDate >= DateTime.Now && x.ForecastDate <= DateTime.Now.AddDays(100))
+                .Max(x => x.PredictedPrice);
+            var longg = calculatedForecasts
+                .Where(x => x.ForecastDate >= DateTime.Now)
+                .Max(x => x.PredictedPrice);
+
+            stock.Short = shortt;
+            stock.Middle = middle;
+            stock.Long = longg;
+            
+            var minPrice = calculatedForecasts.Min(f => f.PredictedPrice);
+            var maxPrice = calculatedForecasts.Max(f => f.PredictedPrice);
+            var avgPrice = calculatedForecasts.Average(f => f.PredictedPrice);
+            
+
+            var amplitude = maxPrice - minPrice;
+            var percentageAmplitude = (amplitude / avgPrice) * 100;
+
+            stock.RiskLevel = percentageAmplitude switch
             {
-                dbContext.Forecasts.Add(forecastEntity);
-            }
+                <= 10 => RiskLevel.Conservative,
+                <= 30 => RiskLevel.Moderate,
+                <= 50 => RiskLevel.Aggressive,
+                _ => RiskLevel.HighlyAggressive
+            };
+
+            dbContext.Stocks.Update(stock);
+            dbContext.Forecasts.AddRange(calculatedForecasts);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

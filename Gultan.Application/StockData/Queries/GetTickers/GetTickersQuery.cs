@@ -1,27 +1,38 @@
 namespace Gultan.Application.StockData.Queries.GetTickers;
 
-public record GetTickersQuery(int[]? ExistIds) : IRequest<StockDto[]>;
+public record GetTickersQuery() : IRequest<StockDto[]>;
 
 public class GetTickersQueryHandler(
-    IApplicationDbContext context, 
+    IApplicationDbContext context,
     IMapper mapper
-    ) : IRequestHandler<GetTickersQuery, StockDto[]>
+) : IRequestHandler<GetTickersQuery, StockDto[]>
 {
     public async Task<StockDto[]> Handle(GetTickersQuery request, CancellationToken cancellationToken)
     {
-        List<Stock> tickers;
-        if (request.ExistIds is not null)
+        var tickers = await context.Stocks
+            .AsQueryable()
+            .Include(x => x.Forecasts)
+            .OrderBy(x => x.Name)
+            .ToArrayAsync(cancellationToken);
+
+        var forecasts = await context.Forecasts
+            .ToArrayAsync(cancellationToken);
+
+        var mappedTickers = mapper.Map<StockDto[]>(tickers);
+
+        foreach (var ticker in mappedTickers)
         {
-            tickers = await context.Stocks
-                .Where(x => !request.ExistIds.Contains(x.Id))
-                .ToListAsync(cancellationToken);
+            ticker.RecommendCount = ticker.DefaultRecommendCount;
+            var forecast = forecasts.Where(x => x.StockId == ticker.Id).ToArray();
+            if (forecast.Length > 0)
+            {
+                ticker.ForecastPrice = forecasts.Where(x => x.StockId == ticker.Id).Average(x => x.PredictedPrice);
+            }
         }
-        else
-        {
-            tickers = await context.Stocks
-                .ToListAsync(cancellationToken);
-        }
-      
-        return mapper.Map<StockDto[]>(tickers.ToArray());
+
+        return mappedTickers
+            .OrderByDescending(x => x.RecommendCount)
+            .ThenByDescending(x => x.ForecastPrice)
+            .ToArray();
     }
 }

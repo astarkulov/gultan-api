@@ -34,7 +34,7 @@ namespace Gultan.Infrastructure.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ForecastDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
                     b.Property<decimal>("PredictedPrice")
                         .HasColumnType("numeric");
@@ -51,6 +51,60 @@ namespace Gultan.Infrastructure.Data.Migrations
                     b.ToTable("Forecasts");
                 });
 
+            modelBuilder.Entity("Gultan.Domain.Models.ForecastUpdate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ForecastDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Tickers")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForecastUpdates");
+                });
+
+            modelBuilder.Entity("Gultan.Domain.Models.Goal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Goals");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Образование"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Покупка недвижимости"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Путешествие"
+                        });
+                });
+
             modelBuilder.Entity("Gultan.Domain.Models.Stock", b =>
                 {
                     b.Property<int>("Id")
@@ -59,23 +113,38 @@ namespace Gultan.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("DefaultRecommendCount")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Exchange")
                         .HasColumnType("text");
 
                     b.Property<string>("Industry")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("LastPrice")
+                    b.Property<decimal?>("LastPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Long")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("MarketCap")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal>("Middle")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<int?>("RiskLevel")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Sector")
                         .HasColumnType("text");
+
+                    b.Property<decimal>("Short")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Symbol")
                         .HasColumnType("text");
@@ -156,6 +225,9 @@ namespace Gultan.Infrastructure.Data.Migrations
                     b.Property<bool>("IsActivated")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
@@ -191,13 +263,30 @@ namespace Gultan.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("Capital")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("GoalId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
+
+                    b.Property<int?>("RiskLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SharePurchaseLimit")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GoalId");
 
                     b.HasIndex("UserId");
 
@@ -242,7 +331,7 @@ namespace Gultan.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Gultan.Domain.Models.Stock", "Stock")
-                        .WithMany()
+                        .WithMany("Forecasts")
                         .HasForeignKey("StockId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -276,11 +365,17 @@ namespace Gultan.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Gultan.Domain.Models.Wallet", b =>
                 {
+                    b.HasOne("Gultan.Domain.Models.Goal", "Goal")
+                        .WithMany()
+                        .HasForeignKey("GoalId");
+
                     b.HasOne("Gultan.Domain.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Goal");
 
                     b.Navigation("User");
                 });
@@ -302,6 +397,11 @@ namespace Gultan.Infrastructure.Data.Migrations
                     b.Navigation("Stock");
 
                     b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("Gultan.Domain.Models.Stock", b =>
+                {
+                    b.Navigation("Forecasts");
                 });
 
             modelBuilder.Entity("Gultan.Domain.Models.User", b =>

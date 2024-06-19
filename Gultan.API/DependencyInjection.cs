@@ -1,8 +1,11 @@
 ﻿using System.Text;
+using Gultan.API.utils;
+using Gultan.Application.Common.Interfaces.Data;
 using Gultan.Application.Common.Mappings;
 using Gultan.Domain.Common;
 using Gultan.Infrastructure.Helpers.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -17,6 +20,9 @@ public static class DependencyInjection
             .AddAutoMapper()
             .AddCorsPolicy()
             .AddControllers();
+
+        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.TryAddScoped<ICurrentUser, CurrentUser>();
             
         services.Configure<ApiBehaviorOptions>(options =>
         {

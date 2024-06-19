@@ -9,5 +9,7 @@ public interface IApplicationDbContext
     DbSet<StockPrice> StockPrices { get; set; }
     DbSet<Wallet> Wallets { get; set; }
     DbSet<WalletStock> WalletStocks { get; set; }
+    DbSet<Goal> Goals { get; set; }
+    DbSet<ForecastUpdate> ForecastUpdates { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

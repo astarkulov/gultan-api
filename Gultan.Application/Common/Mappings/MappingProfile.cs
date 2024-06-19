@@ -12,6 +12,7 @@ public class MappingProfile : Profile
         CreateMap<StockPrice, StockPriceDto>().ReverseMap();
         CreateMap<Wallet, WalletDto>().ReverseMap();
         CreateMap<WalletStockDto, WalletStock>().ReverseMap();
+        CreateMap<Goal, GoalDto>().ReverseMap();
         CreateMap<Security, StockDto>()
             .ForMember(dest => dest.Symbol, opt => opt.MapFrom(src => src.Symbol))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LongName))

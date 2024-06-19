@@ -12,15 +12,13 @@ public class User : BaseEntity
     public string? PhoneNumber { get; set; }
     [MaxLength(255)]
     public string UserName { get; set; }
-
     [MaxLength(255)]
     public string PasswordHash { get; set; }
     [MaxLength(255)]
     public string Email { get; set; }
     [MaxLength(255)]
     public string? ActivationLink { get; set; }
-
     public bool IsActivated { get; set; }
-
     public Token Token { get; set; }
+    public bool IsAdmin { get; set; }
 }
