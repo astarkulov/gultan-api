@@ -4,5 +4,3 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea
-Gultan.API/appsettings.json
-Gultan.API/appsettings.Development.json
