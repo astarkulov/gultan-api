@@ -20,13 +20,15 @@ public class GetTickersQueryHandler(
 
         var mappedTickers = mapper.Map<StockDto[]>(tickers);
 
+        var forecastDate = await context.ForecastUpdates.OrderByDescending(x => x.Id).FirstAsync(cancellationToken);
+
         foreach (var ticker in mappedTickers)
         {
             ticker.RecommendCount = ticker.DefaultRecommendCount;
-            var forecast = forecasts.Where(x => x.StockId == ticker.Id).ToArray();
+            var forecast = forecasts.Where(x => x.StockId == ticker.Id && x.ForecastDate <= forecastDate.ForecastDate).ToArray();
             if (forecast.Length > 0)
             {
-                ticker.ForecastPrice = forecasts.Where(x => x.StockId == ticker.Id).Average(x => x.PredictedPrice);
+                ticker.ForecastPrice = forecast.Average(x => x.PredictedPrice);
             }
         }
 
